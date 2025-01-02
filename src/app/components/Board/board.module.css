@@ -1,3 +1,16 @@
+.game {
+    display: flex;
+}
+
+.button {
+    padding: 2px 10px;
+}
+
 .unstyled-list {
+    margin-left: 15px;
+    padding-top: 37px;
     list-style: none;
+}
+.unstyled-list li {
+    margin-bottom: 5px;
 }

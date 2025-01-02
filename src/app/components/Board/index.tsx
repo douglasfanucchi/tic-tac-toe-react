@@ -1,13 +1,12 @@
 "use client"
 
-import { useState } from "react";
+import { MouseEventHandler, useState } from "react";
 import Square from "../Square";
 import style from "./board.module.css"
 
-export default function Board() {
-    const [squares, setSquares] = useState(new Array(9).fill(null));
-    const [character, setCharacter] = useState("X");
-    const [timeline, setTimeline] = useState(new Array(0));
+export function Board(
+    {squares, character, onPlay}: {squares: Array<number>, character: string, onPlay: Function}
+) {
     let winner = calculateWinner(squares);
     let header = "";
 
@@ -17,62 +16,67 @@ export default function Board() {
         header = "Turn: " + character;
     }
 
-    function toggleCharacter() {
-        if (character == "X") {
-            setCharacter("O")
-            return;
-        }
-        setCharacter("X");
-    }
+    return <div className="board">
+        <h1>{header}</h1>
+        <div className="board-row">
+            <Square value={squares[0]} onSquareClick={() => onPlay(0)} />
+            <Square value={squares[1]} onSquareClick={() => onPlay(1)} />
+            <Square value={squares[2]} onSquareClick={() => onPlay(2)} />
+        </div>
+        <div className="board-row">
+            <Square value={squares[3]} onSquareClick={() => onPlay(3)} />
+            <Square value={squares[4]} onSquareClick={() => onPlay(4)} />
+            <Square value={squares[5]} onSquareClick={() => onPlay(5)} />
+        </div>
+        <div className="board-row">
+            <Square value={squares[6]} onSquareClick={() => onPlay(6)} />
+            <Square value={squares[7]} onSquareClick={() => onPlay(7)} />
+            <Square value={squares[8]} onSquareClick={() => onPlay(8)} />
+        </div>
+    </div>
+}
 
-    function handleClick(index: number) {
-        if (squares[index] != null || calculateWinner(squares)) {
-            return;
-        }
-        const nextTimeline = timeline.slice();
-        nextTimeline.push({character, squares});
-        setTimeline(nextTimeline);
-
-        const nextSquares = squares.slice();
-        nextSquares[index] = character;
-        toggleCharacter();
-        setSquares(nextSquares);
-    }
+export default function Game() {
+    const [timeline, setTimeline] = useState([Array(9).fill(null)]);
+    const [character, setCharacter] = useState("X");
 
     function goBackTo(index: number) {
-        const nextSquares = timeline[index].squares.slice();
-        const nextCharacter = timeline[index].character;
-        const nextTimeline = timeline.slice(0, index);
+        const nextCharacter = (index % 2 == 0) ? "X" : "O";
 
-        setSquares(nextSquares);
         setCharacter(nextCharacter);
-        setTimeline(nextTimeline);
+        setTimeline(timeline.slice(0, index + 1));
+
+    }
+
+    function handleOnPlay(index: number) {
+        const nextSquare = timeline[timeline.length - 1].slice();
+        nextSquare[index] = character;
+
+        if (character == "X") {
+            setCharacter("O");
+        } else {
+            setCharacter("X");
+        }
+        setTimeline([...timeline, nextSquare]);
     }
 
     return <>
-        <h1>{header}</h1>
-        <div className="board-row">
-            <Square value={squares[0]} onSquareClick={() => handleClick(0)} />
-            <Square value={squares[1]} onSquareClick={() => handleClick(1)} />
-            <Square value={squares[2]} onSquareClick={() => handleClick(2)} />
+        <div className={style.game}>
+            <Board
+                squares={timeline[timeline.length - 1]}
+                character={character}
+                onPlay={handleOnPlay}
+            />
+            <ul className={style["unstyled-list"]}>
+                {timeline.map((_, index: number) =>
+                    <li key={index}>
+                        <button className={style.button} onClick={() => goBackTo(index)}>
+                            {(index == 0) ? "Reset" : "Go back to step " + index}
+                        </button>
+                    </li>
+                )}
+            </ul>
         </div>
-        <div className="board-row">
-            <Square value={squares[3]} onSquareClick={() => handleClick(3)} />
-            <Square value={squares[4]} onSquareClick={() => handleClick(4)} />
-            <Square value={squares[5]} onSquareClick={() => handleClick(5)} />
-        </div>
-        <div className="board-row">
-            <Square value={squares[6]} onSquareClick={() => handleClick(6)} />
-            <Square value={squares[7]} onSquareClick={() => handleClick(7)} />
-            <Square value={squares[8]} onSquareClick={() => handleClick(8)} />
-        </div>
-        <ul className={style["unstyled-list"]}>
-            {timeline.map((_, index: number) =>
-                <li key={index}>
-                    <button onClick={() => goBackTo(index)}>Go back to step {index + 1}</button>
-                </li>
-            )}
-        </ul>
     </>
 }
 
