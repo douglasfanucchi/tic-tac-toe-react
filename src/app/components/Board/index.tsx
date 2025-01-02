@@ -68,7 +68,7 @@ export default function Board() {
         </div>
         <ul className={style["unstyled-list"]}>
             {timeline.map((_, index: number) =>
-                <li>
+                <li key={index}>
                     <button onClick={() => goBackTo(index)}>Go back to step {index + 1}</button>
                 </li>
             )}
