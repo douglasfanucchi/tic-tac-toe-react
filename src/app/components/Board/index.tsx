@@ -49,7 +49,11 @@ export default function Game() {
     }
 
     function handleOnPlay(index: number) {
-        const nextSquare = timeline[timeline.length - 1].slice();
+        const square = timeline[timeline.length - 1];
+        if (square[index] || calculateWinner(square)) {
+            return;
+        }
+        const nextSquare = square.slice();
         nextSquare[index] = character;
 
         if (character == "X") {
