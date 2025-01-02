@@ -5,7 +5,12 @@ import Square from "../Square";
 import style from "./board.module.css"
 
 export function Board(
-    {squares, character, onPlay}: {squares: Array<number>, character: string, onPlay: Function}
+    {
+        squares,
+        character,
+        onPlay,
+        currentStep
+    }: {squares: Array<number>, character: string, onPlay: Function, currentStep: number}
 ) {
     let winner = calculateWinner(squares);
     let header = "";
@@ -13,7 +18,7 @@ export function Board(
     if (winner) {
         header = "Winner: " + winner;
     } else {
-        header = "Turn: " + character;
+        header = "Turn: " + character + " - Step: " + currentStep;
     }
 
     return <div className="board">
@@ -39,13 +44,14 @@ export function Board(
 export default function Game() {
     const [timeline, setTimeline] = useState([Array(9).fill(null)]);
     const [character, setCharacter] = useState("X");
+    const [currentStep, setCurrentStep] = useState(0);
 
     function goBackTo(index: number) {
         const nextCharacter = (index % 2 == 0) ? "X" : "O";
 
         setCharacter(nextCharacter);
         setTimeline(timeline.slice(0, index + 1));
-
+        setCurrentStep(index);
     }
 
     function handleOnPlay(index: number) {
@@ -61,6 +67,7 @@ export default function Game() {
         } else {
             setCharacter("X");
         }
+        setCurrentStep(currentStep + 1);
         setTimeline([...timeline, nextSquare]);
     }
 
@@ -70,6 +77,7 @@ export default function Game() {
                 squares={timeline[timeline.length - 1]}
                 character={character}
                 onPlay={handleOnPlay}
+                currentStep={currentStep}
             />
             <ul className={style["unstyled-list"]}>
                 {timeline.map((_, index: number) =>
